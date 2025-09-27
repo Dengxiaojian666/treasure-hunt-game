@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>简单寻宝游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        #status {
+            font-size: 18px;
+            color: #333;
+            margin: 30px 0;
+            opacity: 0;
+            transition: opacity 0.8s;
+        }
+
+        #steps {
+            list-style: none;
+            padding: 0;
+            margin: 40px 0;
+        }
+
+        #steps li {
+            margin: 15px 0;
+            color: #666;
+            transition: color 0.5s;
+        }
+
+        #steps li.active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        #loading {
+            color: #007bff;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 大学生简易寻宝游戏</h1>
+    <div id="loading">正在开始寻宝...</div>
+    <div id="status"></div>
+    <ul id="steps">
+        <li>1. 前往古老图书馆找线索</li>
+        <li>2. 解码古老文字找位置</li>
+        <li>3. 检查神庙入口安全</li>
+        <li>4. 在神庙中搜索宝箱</li>
+        <li>5. 打开宝箱验证宝藏</li>
+    </ul>
+
+    <script src="treasure-core.js"></script>
+    <script>
+        window.onload = async function () {
+            const statusElem = document.getElementById("status");
+            const stepsElem = document.getElementById("steps").getElementsByTagName("li");
+            const loadingElem = document.getElementById("loading");
+
+            try {
+                loadingElem.textContent = "正在图书馆找线索...";
+                const clue = await TreasureMap.getInitialClue();
+                statusElem.textContent = clue;
+                statusElem.style.opacity = 1;
+                stepsElem[0].classList.add("active");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                loadingElem.textContent = "正在解码古老文字...";
+                const location = await TreasureMap.decodeAncientScript(clue);
+                statusElem.textContent = location;
+                stepsElem[1].classList.add("active");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                loadingElem.textContent = "正在检查神庙入口...";
+                const entranceCheck = await TreasureMap.checkTempleEntrance();
+                statusElem.textContent = entranceCheck;
+                stepsElem[2].classList.add("active");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                loadingElem.textContent = "正在神庙里找宝箱...";
+                const box = await TreasureMap.searchTemple(location);
+                statusElem.textContent = box;
+                stepsElem[3].classList.add("active");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                loadingElem.textContent = "正在打开神秘宝箱...";
+                const treasure = await TreasureMap.openTreasureBox();
+                statusElem.textContent = treasure;
+                stepsElem[4].classList.add("active");
+                loadingElem.textContent = "🎉 寻宝结束！";
+
+            } catch (error) {
+                statusElem.textContent = "❌ " + error;
+                statusElem.style.color = "#dc3545";
+                loadingElem.textContent = "💥 寻宝失败";
+            }
+        };
+    </script>
+</body>
+
+</html>
